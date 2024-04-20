@@ -1,3 +1,5 @@
+// redis实现一个排行榜
+// 使用redis的有序集合实现
 package main
 
 import (
