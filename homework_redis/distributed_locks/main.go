@@ -1,3 +1,4 @@
+// redis实现分布式锁
 package main
 
 import (
@@ -17,9 +18,9 @@ func main() {
 		DB:       0,  // use default DB
 	})
 
-	lockKey := "my_lock"
-	lockValue := "lock_value"
-	lockTimeout := 10 * time.Second
+	lockKey := "my_lock"            //锁名
+	lockValue := "lock_value"       //锁值
+	lockTimeout := 10 * time.Second //锁的超时时间
 
 	// 尝试获取锁
 	success, err := rdb.SetNX(ctx, lockKey, lockValue, lockTimeout).Result()
@@ -33,6 +34,7 @@ func main() {
 		// ...
 
 		// 释放锁
+		//创建一个Lua脚本对象，用于释放锁
 		unlockScript := redis.NewScript(`
 		if redis.call("get", KEYS[1]) == ARGV[1] then
 			return redis.call("del", KEYS[1])
@@ -40,6 +42,7 @@ func main() {
 			return 0
 		end
 		`)
+		//运行Lua脚本来释放锁
 		_, err := unlockScript.Run(ctx, rdb, []string{lockKey}, lockValue).Result()
 		if err != nil {
 			panic(err)
