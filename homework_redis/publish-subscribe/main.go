@@ -1,3 +1,4 @@
+// redis实现一个发布订阅模型
 package main
 
 import (
@@ -26,6 +27,7 @@ func main() {
 	ch := pubsub.Channel()
 
 	// 启动一个goroutine来处理接收到的消息
+	//在这个goroutine中，通过循环从通道ch中读取消息，并打印出消息的频道和内容
 	go func() {
 		for msg := range ch {
 			fmt.Println("Received message:", msg.Channel, msg.Payload)
